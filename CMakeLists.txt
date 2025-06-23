@@ -6,6 +6,7 @@ project(WrenBind17)
 option(WRENBIND17_BUILD_TESTS "Build with tests" OFF)
 option(WRENBIND17_BUILD_WREN "Build Wren library too" OFF)
 option(WRENBIND17_COVERAGE "Enable coverage reporting" OFF)
+option(WRENBIND17_INSTALL_RULES "Install headers" ON)
 
 # Add WrenBind17 header only library
 add_library(${PROJECT_NAME} INTERFACE)
@@ -62,11 +63,13 @@ if(WRENBIND17_BUILD_TESTS)
   endif()
 endif()
 
-# install headers
-install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/wrenbind17"
-  DESTINATION include
-  FILES_MATCHING
-  PATTERN "*.hxx"
-  PATTERN "*.hpp"
-  PATTERN "*.h"
-)
+if(WRENBIND17_INSTALL_RULES)
+  # install headers
+  install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include/wrenbind17"
+    DESTINATION include
+    FILES_MATCHING
+    PATTERN "*.hxx"
+    PATTERN "*.hpp"
+    PATTERN "*.h"
+  )
+endif()

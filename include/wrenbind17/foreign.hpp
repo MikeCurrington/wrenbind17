@@ -239,6 +239,7 @@ namespace wrenbind17 {
         std::string ctorDef;
         std::unordered_map<std::string, std::unique_ptr<ForeignMethod>> methods;
         std::unordered_map<std::string, std::unique_ptr<ForeignProp>> props;
+        std::string wrenNative;
         WrenForeignClassMethods allocators;
     };
 
@@ -454,6 +455,7 @@ namespace wrenbind17 {
             for (const auto& pair : props) {
                 pair.second->generate(os);
             }
+            os << wrenNative << "\n";
             os << "}\n\n";
         }
 
@@ -473,6 +475,13 @@ namespace wrenbind17 {
             }
             ss << ") {}\n\n";
             ctorDef = ss.str();
+        }
+
+        /*! 
+         * @brief Add some 'native' wren code to this class
+        */
+        void native(const std::string& code) {
+            wrenNative = code;
         }
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

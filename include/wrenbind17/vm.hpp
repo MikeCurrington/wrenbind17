@@ -236,6 +236,8 @@ namespace wrenbind17 {
             };
 
             data->vm = std::shared_ptr<WrenVM>(wrenNewVM(&data->config), [](WrenVM* ptr) { wrenFreeVM(ptr); });
+
+            wrenInterpret(data->vm.get(), NULL, getWrenNativeSource());
         }
 
         inline VM(const VM& other) = delete;
@@ -400,6 +402,40 @@ namespace wrenbind17 {
          */
         inline void gc() {
             wrenCollectGarbage(data->vm.get());
+        }
+
+        static const char*const getWrenNativeSource() {
+            return "class StdSequence is Sequence {\n"
+                "  construct new(sequence) {\n"
+                "    _sequence = sequence\n"
+                "  }\n"
+                "  iterate(iterator) { _sequence.iterate(iterator) }\n"
+                "  iteratorValue(iterator) { _sequence.iteratorValue(iterator) }\n"
+                "}\n"
+                "class StdKeysSequence is Sequence {\n"
+                "  construct new(sequence) {\n"
+                "    _sequence = sequence\n"
+                "  }\n"
+                "  iterate(iterator) { _sequence.iterate(iterator) }\n"
+                "  iteratorValue(iterator) { _sequence.iteratorValue(iterator).key }\n"
+                "}\n"
+                "class StdValuesSequence is Sequence {\n"
+                "  construct new(sequence) {\n"
+                "    _sequence = sequence\n"
+                "  }\n"
+                "  iterate(iterator) { _sequence.iterate(iterator) }\n"
+                "  iteratorValue(iterator) { _sequence.iteratorValue(iterator).value }\n"
+                "}\n"
+                "class StdMapSequence is Sequence {\n"
+                "  construct new(sequence) {\n"
+                "    _sequence = sequence\n"
+                "  }\n"
+                "  iterate(iterator) { _sequence.iterate(iterator) }\n"
+                "  iteratorValue(iterator) { _sequence.iteratorValue(iterator) }\n"
+                "  keys { StdKeysSequence.new(this) }\n"
+                "  values { StdValuesSequence.new(this) }\n"
+                "}\n"
+                "\n";
         }
 
         class Data {

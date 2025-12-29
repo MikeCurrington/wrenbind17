@@ -401,6 +401,9 @@ namespace wrenbind17 {
             cls.template funcExt<&AbstractMapBindings<Map>::size>("size");
             cls.template funcExt<&AbstractMapBindings<Map>::empty>("empty");
             cls.template propReadonlyExt<&AbstractMapBindings<Map>::count>("count");
+
+            cls.native("values { StdValuesSequence.new(this) }\n"
+                       "keys { StdKeysSequence.new(this) }");
         }
     };
 

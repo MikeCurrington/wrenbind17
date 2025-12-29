@@ -104,6 +104,22 @@ namespace wrenbind17 {
             }
         };
 
+        template <typename From>
+        class ForeignObjectSharedPtrConvertor<From, void> : public ForeignSharedPtrConvertor<void> {
+        public:
+            ForeignObjectSharedPtrConvertor() = default;
+            virtual ~ForeignObjectSharedPtrConvertor() = default;
+
+            inline std::shared_ptr<void> cast(Foreign* foreign) const override {
+                if (!foreign)
+                    throw Exception("Cannot upcast foreign pointer is null and this should not happen");
+                auto* ptr = dynamic_cast<ForeignObject<From>*>(foreign);
+                if (!ptr)
+                    throw BadCast("Bad cast while upcasting to a base type");
+                return std::static_pointer_cast<void>(ptr->shared());
+            }
+        };
+
         template <class T> struct is_shared_ptr : std::false_type {};
         template <class T> struct is_shared_ptr<std::shared_ptr<T>> : std::true_type {};
     } // namespace detail

@@ -189,9 +189,11 @@ namespace wrenbind17 {
                     auto& klass = found.findKlass(className);
                     return klass.findSignature(signature, isStatic);
                 } catch (...) {
+                    /*mjc - allow this to fail in the C code (also allows modules to get hit).
                     std::cerr << "Wren foreign method " << signature << " not found in C++" << std::endl;
                     std::abort();
-                    return nullptr;
+                    mjc*/
+                   return nullptr;
                 }
             };
             data->config.bindForeignClassFn = [](WrenVM* vm, const char* module,

@@ -363,6 +363,8 @@ namespace wrenbind17 {
 
                 return {false};
             } else {
+                if (self.empty())
+                    return {false};
                 return {self.begin()};
             }
         }

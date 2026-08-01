@@ -62,6 +62,18 @@ namespace wrenbind17 {
             }
         };
 
+        template <typename R> struct ForeginMethodReturnHelper<const std::weak_ptr<R>&> {
+            static inline void push(WrenVM* vm, int index, const std::weak_ptr<R>& ret) {
+                PushHelper<const std::weak_ptr<R>&>::f(vm, index, ret);
+            }
+        };
+
+        template <typename R> struct ForeginMethodReturnHelper<std::weak_ptr<R>&> {
+            static inline void push(WrenVM* vm, int index, std::weak_ptr<R>& ret) {
+                PushHelper<std::weak_ptr<R>&>::f(vm, index, ret);
+            }
+        };
+
         template <typename R> struct ForeginMethodReturnHelper<const std::variant<R>&> {
             static inline void push(WrenVM* vm, int index, const std::variant<R>& ret) {
                 PushHelper<const std::variant<R>&>::f(vm, index, ret);

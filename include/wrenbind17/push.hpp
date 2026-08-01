@@ -275,6 +275,55 @@ namespace wrenbind17 {
             }
         };
 
+        template <typename T> struct PushHelper<std::weak_ptr<T>> {
+            static inline void f(WrenVM* vm, int idx, std::weak_ptr<T> value) {
+                static_assert(!std::is_same<std::string, T>(), "type can't be std::string");
+                static_assert(!is_shared_ptr<T>::value, "type can't be shared_ptr<T>");
+                try {
+                    if (value.use_count() == 0)
+                        throw Exception("Cannot push a weak_ptr that has expired.");
+
+                    std::string module;
+                    std::string klass;
+                    getClassType(vm, module, klass, typeid(T).hash_code());
+
+                    wrenEnsureSlots(vm, idx + 1);
+                    wrenGetVariable(vm, module.c_str(), klass.c_str(), idx);
+
+                    auto memory = wrenSetSlotNewForeign(vm, idx, idx, sizeof(ForeignObject<T>));
+                    auto* foreign = new (memory) ForeignObject<T>(value.lock());
+                    (void)foreign;
+                } catch (std::out_of_range& e) {
+                    (void)e;
+                    throw BadCast("Class type not registered in Wren VM");
+                }
+            }
+        };
+
+        template <typename T> struct PushHelper<const std::weak_ptr<T>> {
+            static inline void f(WrenVM* vm, int idx, const std::weak_ptr<T> value) {
+                PushHelper<std::weak_ptr<T>>::f(vm, idx, value);
+            }
+        };
+
+        template <typename T> struct PushHelper<std::weak_ptr<T>&&> {
+            static inline void f(WrenVM* vm, int idx, std::weak_ptr<T>&& value) {
+                PushHelper<std::weak_ptr<T>>::f(vm, idx, std::move(value));
+            }
+        };
+
+        template <typename T> struct PushHelper<std::weak_ptr<T>&> {
+            static inline void f(WrenVM* vm, int idx, std::weak_ptr<T>& value) {
+                PushHelper<std::weak_ptr<T>>::f(vm, idx, value);
+            }
+        };
+
+        template <typename T> struct PushHelper<const std::weak_ptr<T>&> {
+            static inline void f(WrenVM* vm, int idx, const std::weak_ptr<T>& value) {
+                PushHelper<std::weak_ptr<T>>::f(vm, idx, value);
+            }
+        };
+
         template <typename Iter> inline void loopAndPushIterable(WrenVM* vm, const int idx, Iter begin, Iter end) {
             using T = typename std::iterator_traits<Iter>::value_type;
             wrenSetSlotNewList(vm, idx);
